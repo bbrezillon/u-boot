@@ -79,10 +79,10 @@ config ETH_SANDBOX_RAW
 
 config ETH_DESIGNWARE
 	bool "Synopsys Designware Ethernet MAC"
+	select PHYLIB
 	help
 	  This MAC is present in SoCs from various vendors. It supports
-	  100Mbit and 1 Gbit operation. You must enable CONFIG_PHYLIB to
-	  provide the PHY (physical media interface).
+	  100Mbit and 1 Gbit operation.
 
 config PCH_GBE
 	bool "Intel Platform Controller Hub EG20T GMAC driver"
