@@ -101,6 +101,13 @@
 	status = "okay";
 };
 
+&codec {
+	routing =
+		"Headphone Jack", "HP Left",
+		"Headphone Jack", "HP Right";
+	status = "okay";
+};
+
 &cpu0 {
 	cpu-supply = <&reg_dcdc2>;
 };
@@ -197,8 +204,8 @@
 		#address-cells = <2>;
 		#size-cells = <2>;
 		reg = <0>;
-		allwinner,rb = <0>;
 		nand-ecc-mode = "hw";
+		allwinner,rb = <0>;
 		allwinner,randomize;
 	};
 };

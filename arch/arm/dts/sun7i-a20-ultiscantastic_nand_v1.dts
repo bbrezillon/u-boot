@@ -1,7 +1,5 @@
 /*
- * Copyright 2013 Maxime Ripard
- *
- * Maxime Ripard <maxime.ripard@free-electrons.com>
+ * Copyright 2015 - Olliver Schinagl <oliver@schinagl.nl>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -42,148 +40,78 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/dts-v1/;
-#include "sun7i-a20.dtsi"
-#include "sunxi-common-regulators.dtsi"
+#include "sun7i-a20-olinuxino-lime2-nand-4gb.dts"
 
 #include <dt-bindings/gpio/gpio.h>
-#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/input/input.h>
 #include <dt-bindings/pinctrl/sun4i-a10.h>
+#include <dt-bindings/pwm/pwm.h>
 
 / {
-	model = "Cubietech Cubieboard2";
-	compatible = "cubietech,cubieboard2", "allwinner,sun7i-a20";
-
-	aliases {
-		serial0 = &uart0;
-	};
-
-	chosen {
-		stdout-path = "serial0:115200n8";
-	};
+	model = "UltiScantastic v1 addon board to the Olimex OLinuXino Lime2-A20-NAND-4GB";
+	compatible = "ultimaker,ultiscantastic-nand-4gb-v1", "olimex,a20-olinuxino-lime2", "allwinner,sun7i-a20";
 
 	leds {
-		compatible = "gpio-leds";
-		pinctrl-names = "default";
-		pinctrl-0 = <&led_pins_cubieboard2>;
-
-		blue {
-			label = "cubieboard2:blue:usr";
-			gpios = <&pio 7 21 GPIO_ACTIVE_HIGH>;
+		green {
+			linux,default-trigger = "mmc0";
 		};
 
-		green {
-			label = "cubieboard2:green:usr";
+		d1 {
+			label = "opinicus:orange:d1";
 			gpios = <&pio 7 20 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
+		};
+
+		d2 {
+			label = "opinicus:orange:d2";
+			gpios = <&pio 7 21 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
 		};
 	};
 };
 
 &codec {
-        routing =
-                "Headphone Jack", "HP Left",
-                "Headphone Jack", "HP Right";
-        status = "okay";
-};
-
-&ahci {
-	target-supply = <&reg_ahci_5v>;
+	routing =
+		"Headphone Jack", "HP Left",
+		"Headphone Jack", "HP Right";
 	status = "okay";
 };
 
-&cpu0 {
-	cpu-supply = <&reg_dcdc2>;
-};
-
-&ehci0 {
-	status = "okay";
-};
-
-&ehci1 {
-	status = "okay";
-};
-
-&gmac {
-	pinctrl-names = "default";
-	pinctrl-0 = <&gmac_pins_mii_a>;
-	phy = <&phy1>;
-	phy-mode = "mii";
+&lradc {
+	vref-supply = <&reg_vcc3v0>; /* move to lime define, maybe whole thing */
 	status = "okay";
 
-	phy1: ethernet-phy@1 {
-		reg = <1>;
+	button@0 {
+		label = "ver1";
+		linux,code = <1>;
+		channel = <1>;
+		voltage = <0>;
 	};
-};
-
-&i2c0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&i2c0_pins_a>;
-	status = "okay";
-
-	axp209: pmic@34 {
-		reg = <0x34>;
-		interrupt-parent = <&nmi_intc>;
-		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-	};
-};
-
-&i2c1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&i2c1_pins_a>;
-	status = "okay";
-};
-
-&ir0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&ir0_rx_pins_a>;
-	status = "okay";
-};
-
-&mmc0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin_reference_design>;
-	vmmc-supply = <&reg_vcc3v3>;
-	bus-width = <4>;
-	cd-gpios = <&pio 7 1 GPIO_ACTIVE_HIGH>; /* PH1 */
-	cd-inverted;
-	status = "okay";
 };
 
 &nfc {
-	pinctrl-names = "default";
-	pinctrl-0 = <&nand_pins_a>, <&nand_cs0_pins_a>, <&nand_rb0_pins_a>;
-	status = "okay";
-
 	nand@0 {
-		#address-cells = <2>;
-		#size-cells = <2>;
-		reg = <0>;
-		allwinner,rb = <0>;
-
-		nand-ecc-mode = "hw";
-		nand-rnd-mode = "hw";
-		nand-on-flash-bbt;
-
-		boot0@0 {
-			label = "boot0";
+		u-boot@0 {
+			label = "u-boot";
 			reg = /bits/ 64 <0x0 0x200000>;
 			nand-ecc-mode = "hw_syndrome";
+			nand-ecc-strength = <64>;
 			nand-rnd-mode = "hw";
 			nand-randomizer-seeds = /bits/ 16 <0x4a80>;
 		};
 
-		boot0-rescue@200000 {
-			label = "boot0-rescue";
+		u-boot-rescue@200000 {
+			label = "u-boot-rescue";
 			reg = /bits/ 64 <0x200000 0x200000>;
 			nand-ecc-mode = "hw_syndrome";
+			nand-ecc-strength = <64>;
 			nand-rnd-mode = "hw";
 			nand-randomizer-seeds = /bits/ 16 <0x4a80>;
 		};
 
-		main@200000 {
+		main@400000 {
 			label = "main";
 			reg = /bits/ 64 <0x400000 0xffc00000>;
-			nand-ecc-mode = "hw";
 			nand-rnd-mode = "hw";
 			nand-randomizer-seeds = /bits/ 16 <
 				0x2b75 0x0bd0 0x5ca3 0x62d1 0x1c93 0x07e9 0x2162 0x3a72
@@ -206,89 +134,34 @@
 	};
 };
 
-&ohci0 {
-	status = "okay";
-};
-
-&ohci1 {
-	status = "okay";
-};
-
-&otg_sram {
-	status = "okay";
-};
-
 &pio {
-	led_pins_cubieboard2: led_pins@0 {
-		allwinner,pins = "PH20", "PH21";
+	led_pins_opinicus: led_pins@0 {
+		allwinner,pins = "PH20";
 		allwinner,function = "gpio_out";
-		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,drive = <SUN4I_PINCTRL_20_MA>;
 		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 	};
-
-	usb0_id_detect_pin: usb0_id_detect_pin@0 {
-		allwinner,pins = "PH4";
-		allwinner,function = "gpio_in";
-		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-		allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
-	};
 };
 
-&reg_ahci_5v {
+&pwm {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pwm1_pins_a>;
+	status = "okay";
+};
+
+&ir0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&ir0_rx_pins_a &ir0_tx_pins_a>;
+	linux,rc-map-name = "rc-rc5-mce";
 	status = "okay";
 };
 
 &usb_otg {
-	dr_mode = "otg";
-	status = "okay";
-};
-
-#include "axp209.dtsi"
-
-&reg_dcdc2 {
-	regulator-always-on;
-	regulator-min-microvolt = <1000000>;
-	regulator-max-microvolt = <1450000>;
-	regulator-name = "vdd-cpu";
-};
-
-&reg_dcdc3 {
-	regulator-always-on;
-	regulator-min-microvolt = <1000000>;
-	regulator-max-microvolt = <1400000>;
-	regulator-name = "vdd-int-dll";
-};
-
-&reg_ldo1 {
-	regulator-name = "vdd-rtc";
-};
-
-&reg_ldo2 {
-	regulator-always-on;
-	regulator-min-microvolt = <3000000>;
-	regulator-max-microvolt = <3000000>;
-	regulator-name = "avcc";
-};
-
-&reg_usb1_vbus {
-	status = "okay";
-};
-
-&reg_usb2_vbus {
-	status = "okay";
-};
-
-&uart0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&uart0_pins_a>;
-	status = "okay";
+	dr_mode = "host";
 };
 
 &usbphy {
-	pinctrl-names = "default";
-	pinctrl-0 = <&usb0_id_detect_pin>;
-	usb0_id_det-gpio = <&pio 7 4 GPIO_ACTIVE_HIGH>; /* PH4 */
-	usb1_vbus-supply = <&reg_usb1_vbus>;
-	usb2_vbus-supply = <&reg_usb2_vbus>;
-	status = "okay";
+	/* Unset otg detect pins as we force dr_mode */
+	/delete-property/ usb0_id_det-gpio;
+	/delete-property/ usb0_vbus_det-gpio;
 };

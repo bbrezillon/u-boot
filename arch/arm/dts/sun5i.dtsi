@@ -102,6 +102,14 @@
 			clock-output-names = "pll1";
 		};
 
+		pll2: clk@01c20008 {
+			#clock-cells = <1>;
+			compatible = "allwinner,sun4i-a10-b-pll2-clk";
+			reg = <0x01c20008 0x4>;
+			clocks = <&osc24M>;
+			clock-output-names = "pll2", "pll2x2", "pll2x4", "pll2x8";
+		};
+
 		pll4: clk@01c20018 {
 			#clock-cells = <0>;
 			compatible = "allwinner,sun4i-a10-pll1-clk";
@@ -178,6 +186,7 @@
 			compatible = "allwinner,sun4i-a10-axi-gates-clk";
 			reg = <0x01c2005c 0x4>;
 			clocks = <&axi>;
+			clock-indices = <0>;
 			clock-output-names = "axi_dram";
 		};
 
@@ -282,6 +291,14 @@
 			reg = <0x01c200cc 0x4>;
 			clocks = <&pll6 1>;
 			clock-output-names = "usb_ohci0", "usb_phy";
+		};
+
+		codec_clk: clk@01c20140 {
+			#clock-cells = <0>;
+			compatible = "allwinner,sun4i-a10-codec-clk";
+			reg = <0x01c20140 0x4>;
+			clocks = <&pll2 0>;
+			clock-output-names = "codec";
 		};
 
 		mbus_clk: clk@01c2015c {
@@ -576,6 +593,20 @@
 				allwinner,function = "nand0";
 				allwinner,drive = <0>;
 				allwinner,pull = <0>;
+			};
+
+			uart3_pins_a: uart3@0 {
+				allwinner,pins = "PG9", "PG10";
+				allwinner,function = "uart3";
+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+			};
+
+			uart3_pins_cts_rts_a: uart3-cts-rts@0 {
+				allwinner,pins = "PG11", "PG12";
+				allwinner,function = "uart3";
+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 			};
 		};
 

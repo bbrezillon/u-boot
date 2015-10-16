@@ -57,6 +57,7 @@
 		i2c1 = &i2c1;
 		i2c2 = &i2c2;
 		serial0 = &uart1;
+		serial1 = &uart3;
 	};
 
 	chosen {
@@ -109,6 +110,18 @@
 		regulator-max-microvolt = <5000000>;
 		vin-supply = <&ipsout>;
 		regulator-always-on;
+	};
+
+	wifi_reg_on: wifi_reg_on {
+		compatible = "regulator-fixed";
+		pinctrl-names = "default";
+		pinctrl-0 = <&chip_wifi_reg_on_pin>;
+
+		regulator-name = "wifi-reg-on";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&pio 2 19 GPIO_ACTIVE_HIGH>; /* PC19 */
+		enable-active-high;
 	};
 };
 
@@ -213,10 +226,14 @@
 	};
 };
 
+&mmc0_pins_a {
+	allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
+};
+
 &mmc0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins_a>;
-	vmmc-supply = <&vcc_3v3>;
+	vmmc-supply = <&wifi_reg_on>;
 	bus-width = <4>;
 	non-removable;
 	status = "okay";
@@ -256,6 +273,13 @@
 	        allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 	};
 
+	chip_wifi_reg_on_pin: chip_wifi_reg_on_pin@0 {
+	        allwinner,pins = "PC19";
+	        allwinner,function = "gpio_out";
+	        allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+	        allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+	};
+
 	chip_id_det_pin: chip_id_det_pin@0 {
 	        allwinner,pins = "PG2";
 	        allwinner,function = "gpio_in";
@@ -267,6 +291,18 @@
 &uart1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart1_pins_b>;
+	status = "okay";
+};
+
+&uart3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart3_pins_a>,
+		    <&uart3_pins_cts_rts_a>;
+	status = "okay";
+};
+
+&usb_otg {
+	dr_mode = "otg";
 	status = "okay";
 };
 

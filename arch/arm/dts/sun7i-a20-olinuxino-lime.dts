@@ -117,6 +117,18 @@
 	};
 };
 
+&i2c1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c1_pins_a>;
+	status = "okay";
+
+	eeprom: eeprom@50 {
+		compatible = "eeprom,24c16";
+		reg = <0x50>;
+		pagesize = <16>;
+	};
+};
+
 &mmc0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin_reference_design>;
@@ -125,6 +137,21 @@
 	cd-gpios = <&pio 7 1 GPIO_ACTIVE_HIGH>; /* PH1 */
 	cd-inverted;
 	status = "okay";
+};
+
+&nfc {
+	pinctrl-names = "default";
+	pinctrl-0 = <&nand_pins_a &nand_cs0_pins_a &nand_rb0_pins_a>;
+	status = "okay";
+
+	nand@0 {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		reg = <0>;
+		allwinner,rb = <0>;
+		nand-ecc-mode = "hw";
+		allwinner,randomize;
+	};
 };
 
 &ohci0 {
@@ -207,19 +234,4 @@
 	usb1_vbus-supply = <&reg_usb1_vbus>;
 	usb2_vbus-supply = <&reg_usb2_vbus>;
 	status = "okay";
-};
-
-&nfc {
-	pinctrl-names = "default";
-	pinctrl-0 = <&nand_pins_a &nand_cs0_pins_a &nand_rb0_pins_a>;
-	status = "okay";
-
-	nand@0 {
-		#address-cells = <2>;
-		#size-cells = <2>;
-		reg = <0>;
-		allwinner,rb = <0>;
-		nand-ecc-mode = "hw";
-		allwinner,randomize;
-	};
 };
