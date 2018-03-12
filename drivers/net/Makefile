@@ -60,6 +60,7 @@ obj-$(CONFIG_TSEC_ENET) += tsec.o fsl_mdio.o
 obj-$(CONFIG_FMAN_ENET) += fsl_mdio.o
 obj-$(CONFIG_ULI526X) += uli526x.o
 obj-$(CONFIG_VSC7385_ENET) += vsc7385.o
+obj-$(CONFIG_MSCC_ESWITCH) += mscc_eswitch/
 obj-$(CONFIG_XILINX_AXIEMAC) += xilinx_axi_emac.o
 obj-$(CONFIG_XILINX_EMACLITE) += xilinx_emaclite.o
 obj-$(CONFIG_ZYNQ_GEM) += zynq_gem.o
