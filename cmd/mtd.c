@@ -15,7 +15,6 @@
 #include <linux/mtd/partitions.h>
 #include <malloc.h>
 #include <mapmem.h>
-#include <mtd.h>
 #include <dm/device.h>
 #include <dm/uclass-internal.h>
 
@@ -93,9 +92,9 @@ static void mtd_show_device(struct mtd_info *mtd)
 	}
 }
 
-int mtd_probe_devices(void)
+#if IS_ENABLED(CONFIG_DM)
+static void mtd_probe_uclass_mtd_devs(void)
 {
-	const char *mtdparts = env_get("mtdparts");
 	struct udevice *dev;
 	int idx = 0;
 
@@ -104,6 +103,16 @@ int mtd_probe_devices(void)
 		mtd_probe(dev);
 		idx++;
 	}
+}
+#else
+static void mtd_probe_uclass_mtd_devs(void) { }
+#endif
+
+int mtd_probe_devices(void)
+{
+	const char *mtdparts = env_get("mtdparts");
+
+	mtd_probe_uclass_mtd_devs();
 
 	/* Create the partitions defined in mtdparts, here the fun begins */
 
