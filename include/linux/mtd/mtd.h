@@ -306,6 +306,7 @@ struct mtd_info {
 	int usecount;
 };
 
+#if IS_ENABLED(CONFIG_DM)
 static inline void mtd_set_of_node(struct mtd_info *mtd,
 				   const struct device_node *np)
 {
@@ -316,6 +317,19 @@ static inline const struct device_node *mtd_get_of_node(struct mtd_info *mtd)
 {
 	return mtd->dev->node.np;
 }
+#else
+struct device_node;
+
+static inline void mtd_set_of_node(struct mtd_info *mtd,
+				   const struct device_node *np)
+{
+}
+
+static inline const struct device_node *mtd_get_of_node(struct mtd_info *mtd)
+{
+	return NULL;
+}
+#endif
 
 int mtd_ooblayout_ecc(struct mtd_info *mtd, int section,
 		      struct mtd_oob_region *oobecc);
