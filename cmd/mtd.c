@@ -578,7 +578,7 @@ static char mtd_help_text[] =
 #endif
 	"";
 
-U_BOOT_CMD_WITH_SUBCMDS(mtd, 10, 1, "MTD utils", mtd_help_text,
+U_BOOT_CMD_WITH_SUBCMDS(mtd, 1, "MTD utils", mtd_help_text,
 		U_BOOT_SUBCMD_MKENT(list, 1, do_mtd_list),
 		U_BOOT_SUBCMD_MKENT_COMPLETE(read, 5, do_mtd_io,
 					     do_mtd_name_complete),
