@@ -187,7 +187,7 @@ int board_run_command(const char *cmdline);
 # define _CMD_HELP(x)
 #endif
 
-#define U_BOOT_SUBCMDS_DO_CMD(_cmdname, _maxargs)			\
+#define U_BOOT_SUBCMDS_DO_CMD(_cmdname)					\
 	static int do_##_cmdname(cmd_tbl_t *cmdtp, int flag, int argc,	\
 				 char * const argv[])			\
 	{								\
@@ -206,7 +206,7 @@ int board_run_command(const char *cmdline);
 	}
 
 #ifdef CONFIG_AUTO_COMPLETE
-#define U_BOOT_SUBCMDS_COMPLETE(_cmdname, _maxargs)			\
+#define U_BOOT_SUBCMDS_COMPLETE(_cmdname)				\
 	static int complete_##_cmdname(int argc, char * const argv[],	\
 				       char last_char, int maxv,	\
 				       char *cmdv[])			\
@@ -217,13 +217,13 @@ int board_run_command(const char *cmdline);
 					maxv, cmdv);			\
 	}
 #else
-#define U_BOOT_SUBCMDS_COMPLETE(_cmdname, _maxargs)
+#define U_BOOT_SUBCMDS_COMPLETE(_cmdname)
 #endif
 
-#define U_BOOT_SUBCMDS(_cmdname, _maxargs, ...)				\
+#define U_BOOT_SUBCMDS(_cmdname, ...)					\
 	static cmd_tbl_t _cmdname##_subcmds[] = { __VA_ARGS__ };	\
-	U_BOOT_SUBCMDS_DO_CMD(_cmdname, _maxargs)			\
-	U_BOOT_SUBCMDS_COMPLETE(_cmdname, _maxargs)
+	U_BOOT_SUBCMDS_DO_CMD(_cmdname)					\
+	U_BOOT_SUBCMDS_COMPLETE(_cmdname)
 
 #ifdef CONFIG_CMDLINE
 #define U_BOOT_CMD_MKENT_COMPLETE(_name, _maxargs, _rep, _cmd,		\
@@ -272,10 +272,10 @@ int board_run_command(const char *cmdline);
 #define U_BOOT_SUBCMD_MKENT(_name, _maxargs, _do_cmd)			\
 	U_BOOT_SUBCMD_MKENT_COMPLETE(_name, _maxargs, _do_cmd, NULL)
 
-#define U_BOOT_CMD_WITH_SUBCMDS(_name, _maxargs, _rep, _usage, _help,	\
+#define U_BOOT_CMD_WITH_SUBCMDS(_name, _rep, _usage, _help,		\
 				...)					\
-	U_BOOT_SUBCMDS(_name, _maxargs, __VA_ARGS__)			\
-	U_BOOT_CMD_COMPLETE(_name, _maxargs, _rep, do_##_name, _usage,	\
-			    _help, complete_##_name)
+	U_BOOT_SUBCMDS(_name, __VA_ARGS__)				\
+	U_BOOT_CMD_COMPLETE(_name, CONFIG_SYS_MAXARGS, _rep,		\
+			    do_##_name,_usage, _help, complete_##_name)
 
 #endif	/* __COMMAND_H */
