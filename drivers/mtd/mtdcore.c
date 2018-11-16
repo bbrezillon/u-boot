@@ -528,6 +528,10 @@ int del_mtd_device(struct mtd_info *mtd)
 	struct mtd_notifier *not;
 #endif
 
+	ret = del_mtd_partitions(mtd);
+	if (ret)
+		return ret;
+
 	mutex_lock(&mtd_table_mutex);
 
 	if (idr_find(&mtd_idr, mtd->index) != mtd) {
