@@ -57,38 +57,12 @@ static int do_bootstage_stash(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static cmd_tbl_t cmd_bootstage_sub[] = {
-	U_BOOT_CMD_MKENT(report, 2, 1, do_bootstage_report, "", ""),
-	U_BOOT_CMD_MKENT(stash, 4, 0, do_bootstage_stash, "", ""),
-	U_BOOT_CMD_MKENT(unstash, 4, 0, do_bootstage_stash, "", ""),
-};
-
-/*
- * Process a bootstage sub-command
- */
-static int do_boostage(cmd_tbl_t *cmdtp, int flag, int argc,
-		       char * const argv[])
-{
-	cmd_tbl_t *c;
-
-	/* Strip off leading 'bootstage' command argument */
-	argc--;
-	argv++;
-
-	c = find_cmd_tbl(argv[0], cmd_bootstage_sub,
-			 ARRAY_SIZE(cmd_bootstage_sub));
-
-	if (c)
-		return c->cmd(cmdtp, flag, argc, argv);
-	else
-		return CMD_RET_USAGE;
-}
-
-
-U_BOOT_CMD(bootstage, 4, 1, do_boostage,
+U_BOOT_CMD_WITH_SUBCMDS(bootstage,
 	"Boot stage command",
 	" - check boot progress and timing\n"
 	"report                      - Print a report\n"
 	"stash [<start> [<size>]]    - Stash data into memory\n"
-	"unstash [<start> [<size>]]  - Unstash data from memory"
-);
+	"unstash [<start> [<size>]]  - Unstash data from memory",
+	U_BOOT_SUBCMD_MKENT(report, 2, 1, do_bootstage_report),
+	U_BOOT_SUBCMD_MKENT(stash, 4, 0, do_bootstage_stash),
+	U_BOOT_SUBCMD_MKENT(unstash, 4, 0, do_bootstage_stash));
