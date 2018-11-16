@@ -340,38 +340,8 @@ int do_avb_is_unlocked(cmd_tbl_t *cmdtp, int flag,
 	return CMD_RET_FAILURE;
 }
 
-static cmd_tbl_t cmd_avb[] = {
-	U_BOOT_CMD_MKENT(init, 2, 0, do_avb_init, "", ""),
-	U_BOOT_CMD_MKENT(read_rb, 2, 0, do_avb_read_rb, "", ""),
-	U_BOOT_CMD_MKENT(write_rb, 3, 0, do_avb_write_rb, "", ""),
-	U_BOOT_CMD_MKENT(is_unlocked, 1, 0, do_avb_is_unlocked, "", ""),
-	U_BOOT_CMD_MKENT(get_uuid, 2, 0, do_avb_get_uuid, "", ""),
-	U_BOOT_CMD_MKENT(read_part, 5, 0, do_avb_read_part, "", ""),
-	U_BOOT_CMD_MKENT(read_part_hex, 4, 0, do_avb_read_part_hex, "", ""),
-	U_BOOT_CMD_MKENT(write_part, 5, 0, do_avb_write_part, "", ""),
-	U_BOOT_CMD_MKENT(verify, 1, 0, do_avb_verify_part, "", ""),
-};
-
-static int do_avb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	cmd_tbl_t *cp;
-
-	cp = find_cmd_tbl(argv[1], cmd_avb, ARRAY_SIZE(cmd_avb));
-
-	argc--;
-	argv++;
-
-	if (!cp || argc > cp->maxargs)
-		return CMD_RET_USAGE;
-
-	if (flag == CMD_FLAG_REPEAT)
-		return CMD_RET_FAILURE;
-
-	return cp->cmd(cmdtp, flag, argc, argv);
-}
-
-U_BOOT_CMD(
-	avb, 29, 0, do_avb,
+U_BOOT_CMD_WITH_SUBCMDS(
+	avb, 0,
 	"Provides commands for testing Android Verified Boot 2.0 functionality",
 	"init <dev> - initialize avb2 for <dev>\n"
 	"avb read_rb <num> - read rollback index at location <num>\n"
@@ -385,5 +355,13 @@ U_BOOT_CMD(
 	"avb write_part <partname> <offset> <num> <addr> - write <num> bytes to\n"
 	"    <partname> by <offset> using data from <addr>\n"
 	"avb verify - run verification process using hash data\n"
-	"    from vbmeta structure\n"
-	);
+	"    from vbmeta structure\n",
+	U_BOOT_SUBCMD_MKENT(init, 2, do_avb_init),
+	U_BOOT_SUBCMD_MKENT(read_rb, 2, do_avb_read_rb),
+	U_BOOT_SUBCMD_MKENT(write_rb, 3, do_avb_write_rb),
+	U_BOOT_SUBCMD_MKENT(is_unlocked, 1, do_avb_is_unlocked),
+	U_BOOT_SUBCMD_MKENT(get_uuid, 2, do_avb_get_uuid),
+	U_BOOT_SUBCMD_MKENT(read_part, 5, do_avb_read_part),
+	U_BOOT_SUBCMD_MKENT(read_part_hex, 4, do_avb_read_part_hex),
+	U_BOOT_SUBCMD_MKENT(write_part, 5, do_avb_write_part),
+	U_BOOT_SUBCMD_MKENT(verify, 1, do_avb_verify_part))
