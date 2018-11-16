@@ -312,41 +312,14 @@ static int do_axi_mw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-static cmd_tbl_t cmd_axi_sub[] = {
-	U_BOOT_CMD_MKENT(bus, 1, 1, do_axi_show_bus, "", ""),
-	U_BOOT_CMD_MKENT(dev, 1, 1, do_axi_bus_num, "", ""),
-	U_BOOT_CMD_MKENT(md, 4, 1, do_axi_md, "", ""),
-	U_BOOT_CMD_MKENT(mw, 5, 1, do_axi_mw, "", ""),
-};
-
-static int do_ihs_axi(cmd_tbl_t *cmdtp, int flag, int argc,
-		      char * const argv[])
-{
-	cmd_tbl_t *c;
-
-	if (argc < 2)
-		return CMD_RET_USAGE;
-
-	/* Strip off leading 'axi' command argument */
-	argc--;
-	argv++;
-
-	/* Hand off rest of command line to sub-commands */
-	c = find_cmd_tbl(argv[0], &cmd_axi_sub[0], ARRAY_SIZE(cmd_axi_sub));
-
-	if (c)
-		return c->cmd(cmdtp, flag, argc, argv);
-	else
-		return CMD_RET_USAGE;
-}
-
 static char axi_help_text[] =
 	"bus  - show AXI bus info\n"
 	"axi dev [bus] - show or set current AXI bus to bus number [bus]\n"
 	"axi md size addr [# of objects] - read from AXI device at address [addr] and data width [size] (one of 8, 16, 32)\n"
 	"axi mw size addr value [count] - write data [value] to AXI device at address [addr] and data width [size] (one of 8, 16, 32)\n";
 
-U_BOOT_CMD(axi, 7, 1, do_ihs_axi,
-	   "AXI sub-system",
-	   axi_help_text
-);
+U_BOOT_CMD_WITH_SUBCMDS(axi, 1, "AXI sub-system", axi_help_text,
+	U_BOOT_SUBCMD_MKENT(bus, 1, do_axi_show_bus),
+	U_BOOT_SUBCMD_MKENT(dev, 1, do_axi_bus_num),
+	U_BOOT_SUBCMD_MKENT(md, 4, do_axi_md),
+	U_BOOT_SUBCMD_MKENT(mw, 5, do_axi_mw))
