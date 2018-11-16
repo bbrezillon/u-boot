@@ -482,6 +482,38 @@ out_put_mtd:
 	return CMD_RET_SUCCESS;
 }
 
+static int do_mtd_lock_unlock(cmd_tbl_t *cmdtp, int flag, int argc,
+			      char * const argv[])
+{
+	struct mtd_info *mtd;
+	const char *cmd;
+	u64 off, len;
+	int ret;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	cmd = argv[0];
+	mtd = get_mtd_by_name(argv[1]);
+	if (IS_ERR_OR_NULL(mtd))
+		return CMD_RET_FAILURE;
+
+	argc -= 2;
+	argv += 2;
+
+	off = argc > 0 ? simple_strtoul(argv[0], NULL, 16) : 0;
+	len = argc > 1 ? simple_strtoul(argv[1], NULL, 16) : mtd->size;
+
+	if (!strcmp(cmd, "lock"))
+		ret = mtd_lock(mtd, off, len);
+	else
+		ret = mtd_unlock(mtd, off, len);
+
+	put_mtd_device(mtd);
+
+	return !ret ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
+}
+
 #ifdef CONFIG_AUTO_COMPLETE
 static int mtd_name_complete(int argc, char * const argv[], char last_char,
 			     int maxv, char *cmdv[])
@@ -557,6 +589,8 @@ static char mtd_help_text[] =
 	"mtd dump[.raw][.oob]                  <name>        [<off> [<size>]]\n"
 	"mtd write[.raw][.oob][.dontskipff]    <name> <addr> [<off> [<size>]]\n"
 	"mtd erase[.dontskipbad]               <name>        [<off> [<size>]]\n"
+	"mtd lock                              <name>        [<off> [<size>]]\n"
+	"mtd unlock                            <name>        [<off> [<size>]]\n"
 	"\n"
 	"Specific functions:\n"
 	"mtd bad                               <name>\n"
@@ -586,4 +620,8 @@ U_BOOT_CMD_WITH_SUBCMDS(mtd, "MTD utils", mtd_help_text,
 		U_BOOT_SUBCMD_MKENT_COMPLETE(erase, 4, 0, do_mtd_erase,
 					     three_args_complete),
 		U_BOOT_SUBCMD_MKENT_COMPLETE(bad, 2, 1, do_mtd_bad,
-					     one_arg_complete));
+					     one_arg_complete),
+		U_BOOT_SUBCMD_MKENT_COMPLETE(lock, 4, 0, do_mtd_lock_unlock,
+					     three_args_complete),
+		U_BOOT_SUBCMD_MKENT_COMPLETE(unlock, 4, 0, do_mtd_lock_unlock,
+					     three_args_complete));
