@@ -1163,71 +1163,12 @@ static int do_env_exists(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 #endif
 
-/*
- * New command line interface: "env" command with subcommands
- */
-static cmd_tbl_t cmd_env_sub[] = {
-#if defined(CONFIG_CMD_ASKENV)
-	U_BOOT_CMD_MKENT(ask, CONFIG_SYS_MAXARGS, 1, do_env_ask, "", ""),
-#endif
-	U_BOOT_CMD_MKENT(default, 1, 0, do_env_default, "", ""),
-	U_BOOT_CMD_MKENT(delete, CONFIG_SYS_MAXARGS, 0, do_env_delete, "", ""),
-#if defined(CONFIG_CMD_EDITENV)
-	U_BOOT_CMD_MKENT(edit, 2, 0, do_env_edit, "", ""),
-#endif
-#if defined(CONFIG_CMD_ENV_CALLBACK)
-	U_BOOT_CMD_MKENT(callbacks, 1, 0, do_env_callback, "", ""),
-#endif
-#if defined(CONFIG_CMD_ENV_FLAGS)
-	U_BOOT_CMD_MKENT(flags, 1, 0, do_env_flags, "", ""),
-#endif
-#if defined(CONFIG_CMD_EXPORTENV)
-	U_BOOT_CMD_MKENT(export, 4, 0, do_env_export, "", ""),
-#endif
-#if defined(CONFIG_CMD_GREPENV)
-	U_BOOT_CMD_MKENT(grep, CONFIG_SYS_MAXARGS, 1, do_env_grep, "", ""),
-#endif
-#if defined(CONFIG_CMD_IMPORTENV)
-	U_BOOT_CMD_MKENT(import, 5, 0, do_env_import, "", ""),
-#endif
-	U_BOOT_CMD_MKENT(print, CONFIG_SYS_MAXARGS, 1, do_env_print, "", ""),
-#if defined(CONFIG_CMD_RUN)
-	U_BOOT_CMD_MKENT(run, CONFIG_SYS_MAXARGS, 1, do_run, "", ""),
-#endif
-#if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
-	U_BOOT_CMD_MKENT(save, 1, 0, do_env_save, "", ""),
-#endif
-	U_BOOT_CMD_MKENT(set, CONFIG_SYS_MAXARGS, 0, do_env_set, "", ""),
-#if defined(CONFIG_CMD_ENV_EXISTS)
-	U_BOOT_CMD_MKENT(exists, 2, 0, do_env_exists, "", ""),
-#endif
-};
-
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 void env_reloc(void)
 {
 	fixup_cmdtable(cmd_env_sub, ARRAY_SIZE(cmd_env_sub));
 }
 #endif
-
-static int do_env(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	cmd_tbl_t *cp;
-
-	if (argc < 2)
-		return CMD_RET_USAGE;
-
-	/* drop initial "env" arg */
-	argc--;
-	argv++;
-
-	cp = find_cmd_tbl(argv[0], cmd_env_sub, ARRAY_SIZE(cmd_env_sub));
-
-	if (cp)
-		return cp->cmd(cmdtp, flag, argc, argv);
-
-	return CMD_RET_USAGE;
-}
 
 #ifdef CONFIG_SYS_LONGHELP
 static char env_help_text[] =
@@ -1272,10 +1213,48 @@ static char env_help_text[] =
 	"env set [-f] name [arg ...]\n";
 #endif
 
-U_BOOT_CMD(
-	env, CONFIG_SYS_MAXARGS, 1, do_env,
-	"environment handling commands", env_help_text
-);
+/*
+ * New command line interface: "env" command with subcommands
+ */
+U_BOOT_CMD_WITH_SUBCMDS(env, 1, "environment handling commands", env_help_text,
+#if defined(CONFIG_CMD_ASKENV)
+	U_BOOT_SUBCMD_MKENT(ask, CONFIG_SYS_MAXARGS, do_env_ask),
+#endif
+	U_BOOT_SUBCMD_MKENT(default, 1, do_env_default),
+	U_BOOT_SUBCMD_MKENT(delete, CONFIG_SYS_MAXARGS, do_env_delete),
+#if defined(CONFIG_CMD_EDITENV)
+	U_BOOT_SUBCMD_MKENT_COMPLETE(edit, 2, do_env_edit, var_complete),
+#endif
+#if defined(CONFIG_CMD_ENV_CALLBACK)
+	U_BOOT_SUBCMD_MKENT(callbacks, 1, do_env_callback),
+#endif
+#if defined(CONFIG_CMD_ENV_FLAGS)
+	U_BOOT_SUBCMD_MKENT(flags, 1, do_env_flags),
+#endif
+#if defined(CONFIG_CMD_EXPORTENV)
+	U_BOOT_SUBCMD_MKENT(export, 4, do_env_export),
+#endif
+#if defined(CONFIG_CMD_GREPENV)
+	U_BOOT_SUBCMD_MKENT_COMPLETE(grep, CONFIG_SYS_MAXARGS,
+				     do_env_grep, var_complete),
+#endif
+#if defined(CONFIG_CMD_IMPORTENV)
+	U_BOOT_SUBCMD_MKENT(import, 5, do_env_import),
+#endif
+	U_BOOT_SUBCMD_MKENT_COMPLETE(print, CONFIG_SYS_MAXARGS, do_env_print,
+				     var_complete),
+#if defined(CONFIG_CMD_RUN)
+	U_BOOT_SUBCMD_MKENT_COMPLETE(run, CONFIG_SYS_MAXARGS, do_run,
+				     var_complete),
+#endif
+#if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
+	U_BOOT_SUBCMD_MKENT(save, 1, do_env_save),
+#endif
+#if defined(CONFIG_CMD_ENV_EXISTS)
+	U_BOOT_SUBCMD_MKENT(exists, 2, do_env_exists),
+#endif
+	U_BOOT_SUBCMD_MKENT_COMPLETE(set, CONFIG_SYS_MAXARGS, do_env_set,
+				     var_complete))
 
 /*
  * Old command line interface, kept for compatibility
