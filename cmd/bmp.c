@@ -134,49 +134,18 @@ static int do_bmp_display(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 	 return (bmp_display(addr, x, y));
 }
 
-static cmd_tbl_t cmd_bmp_sub[] = {
-	U_BOOT_CMD_MKENT(info, 3, 0, do_bmp_info, "", ""),
-	U_BOOT_CMD_MKENT(display, 5, 0, do_bmp_display, "", ""),
-};
-
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 void bmp_reloc(void) {
 	fixup_cmdtable(cmd_bmp_sub, ARRAY_SIZE(cmd_bmp_sub));
 }
 #endif
 
-/*
- * Subroutine:  do_bmp
- *
- * Description: Handler for 'bmp' command..
- *
- * Inputs:	argv[1] contains the subcommand
- *
- * Return:      None
- *
- */
-static int do_bmp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	cmd_tbl_t *c;
-
-	/* Strip off leading 'bmp' command argument */
-	argc--;
-	argv++;
-
-	c = find_cmd_tbl(argv[0], &cmd_bmp_sub[0], ARRAY_SIZE(cmd_bmp_sub));
-
-	if (c)
-		return  c->cmd(cmdtp, flag, argc, argv);
-	else
-		return CMD_RET_USAGE;
-}
-
-U_BOOT_CMD(
-	bmp,	5,	1,	do_bmp,
+U_BOOT_CMD_WITH_SUBCMDS(bmp,
 	"manipulate BMP image data",
 	"info <imageAddr>          - display image info\n"
-	"bmp display <imageAddr> [x y] - display image at x,y"
-);
+	"bmp display <imageAddr> [x y] - display image at x,y",
+	U_BOOT_SUBCMD_MKENT(info, 3, 0, do_bmp_info),
+	U_BOOT_SUBCMD_MKENT(display, 5, 0, do_bmp_display));
 
 /*
  * Subroutine:  bmp_info
