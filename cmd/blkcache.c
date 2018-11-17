@@ -40,47 +40,10 @@ static int blkc_configure(cmd_tbl_t *cmdtp, int flag,
 	return 0;
 }
 
-static cmd_tbl_t cmd_blkc_sub[] = {
-	U_BOOT_CMD_MKENT(show, 0, 0, blkc_show, "", ""),
-	U_BOOT_CMD_MKENT(configure, 3, 0, blkc_configure, "", ""),
-};
-
-static __maybe_unused void blkc_reloc(void)
-{
-	static int relocated;
-
-	if (!relocated) {
-		fixup_cmdtable(cmd_blkc_sub, ARRAY_SIZE(cmd_blkc_sub));
-		relocated = 1;
-	};
-}
-
-static int do_blkcache(cmd_tbl_t *cmdtp, int flag,
-		       int argc, char * const argv[])
-{
-	cmd_tbl_t *c;
-
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-	blkc_reloc();
-#endif
-	if (argc < 2)
-		return CMD_RET_USAGE;
-
-	/* Strip off leading argument */
-	argc--;
-	argv++;
-
-	c = find_cmd_tbl(argv[0], &cmd_blkc_sub[0], ARRAY_SIZE(cmd_blkc_sub));
-
-	if (!c)
-		return CMD_RET_USAGE;
-
-	return c->cmd(cmdtp, flag, argc, argv);
-}
-
-U_BOOT_CMD(
-	blkcache, 4, 0, do_blkcache,
+U_BOOT_CMD_WITH_SUBCMDS(blkcache,
 	"block cache diagnostics and control",
 	"show - show and reset statistics\n"
-	"blkcache configure blocks entries\n"
+	"blkcache configure blocks entries\n",
+	U_BOOT_SUBCMD_MKENT(show, 0, 0, blkc_show),
+	U_BOOT_SUBCMD_MKENT(configure, 3, 0, blkc_configure),
 );
