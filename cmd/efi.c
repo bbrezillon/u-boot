@@ -197,7 +197,7 @@ static int do_efi_mem(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int size, ret;
 	bool skip_bs;
 
-	skip_bs = !argc || *argv[0] != 'a';
+	skip_bs = argc == 1 || *argv[1] != 'a';
 	ret = efi_info_get(EFIET_MEMORY_MAP, (void **)&map, &size);
 	switch (ret) {
 	case -ENOENT:
@@ -230,30 +230,7 @@ done:
 	return ret ? CMD_RET_FAILURE : 0;
 }
 
-static cmd_tbl_t efi_commands[] = {
-	U_BOOT_CMD_MKENT(mem, 1, 1, do_efi_mem, "", ""),
-};
-
-static int do_efi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	cmd_tbl_t *efi_cmd;
-	int ret;
-
-	if (argc < 2)
-		return CMD_RET_USAGE;
-	efi_cmd = find_cmd_tbl(argv[1], efi_commands, ARRAY_SIZE(efi_commands));
-	argc -= 2;
-	argv += 2;
-	if (!efi_cmd || argc > efi_cmd->maxargs)
-		return CMD_RET_USAGE;
-
-	ret = efi_cmd->cmd(efi_cmd, flag, argc, argv);
-
-	return cmd_process_error(efi_cmd, ret);
-}
-
-U_BOOT_CMD(
-	efi,     3,      1,      do_efi,
+U_BOOT_CMD_WITH_SUBCMDS(efi,
 	"EFI access",
-	"mem [all]        Dump memory information [include boot services]"
-);
+	"mem [all]        Dump memory information [include boot services]",
+	U_BOOT_SUBCMD_MKENT(mem, 2, 1, do_efi_mem));
