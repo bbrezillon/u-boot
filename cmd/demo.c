@@ -16,37 +16,64 @@ struct udevice *demo_dev;
 static int do_demo_hello(cmd_tbl_t *cmdtp, int flag, int argc,
 			 char * const argv[])
 {
+	int devnum = 0;
 	int ch = 0;
+	int ret;
 
-	if (argc)
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	devnum = simple_strtoul(argv[1], NULL, 10);
+	ret = uclass_get_device(UCLASS_DEMO, devnum, &demo_dev);
+	if (ret)
+		return cmd_process_error(cmdtp, ret);
+
+	if (argc > 2)
 		ch = *argv[0];
 
-	return demo_hello(demo_dev, ch);
+	ret = demo_hello(demo_dev, ch);
+	return cmd_process_error(cmdtp, ret);
 }
 
 static int do_demo_status(cmd_tbl_t *cmdtp, int flag, int argc,
 			  char * const argv[])
 {
+	int devnum = 0;
 	int status;
 	int ret;
 
-	ret = demo_status(demo_dev, &status);
+	if (argc != 2)
+		return CMD_RET_USAGE;
+
+	devnum = simple_strtoul(argv[1], NULL, 10);
+	ret = uclass_get_device(UCLASS_DEMO, devnum, &demo_dev);
 	if (ret)
-		return ret;
+		return cmd_process_error(cmdtp, ret);
 
-	printf("Status: %d\n", status);
+	ret = demo_status(demo_dev, &status);
+	if (!ret)
+		printf("Status: %d\n", status);
 
-	return 0;
+	return cmd_process_error(cmdtp, ret);
 }
 
 static int do_demo_light(cmd_tbl_t *cmdtp, int flag, int argc,
 			 char * const argv[])
 {
+	int devnum = 0;
 	int light;
 	int ret;
 
-	if (argc) {
-		light = simple_strtoul(argv[0], NULL, 16);
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	devnum = simple_strtoul(argv[1], NULL, 10);
+	ret = uclass_get_device(UCLASS_DEMO, devnum, &demo_dev);
+	if (ret)
+		return cmd_process_error(cmdtp, ret);
+
+	if (argc > 2) {
+		light = simple_strtoul(argv[2], NULL, 16);
 		ret = demo_set_light(demo_dev, light);
 	} else {
 		ret = demo_get_light(demo_dev);
@@ -56,7 +83,7 @@ static int do_demo_light(cmd_tbl_t *cmdtp, int flag, int argc,
 		}
 	}
 
-	return ret;
+	return cmd_process_error(cmdtp, ret);
 }
 
 int do_demo_list(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -78,54 +105,13 @@ int do_demo_list(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return cmd_process_error(cmdtp, ret);
 }
 
-static cmd_tbl_t demo_commands[] = {
-	U_BOOT_CMD_MKENT(list, 0, 1, do_demo_list, "", ""),
-	U_BOOT_CMD_MKENT(hello, 2, 1, do_demo_hello, "", ""),
-	U_BOOT_CMD_MKENT(light, 2, 1, do_demo_light, "", ""),
-	U_BOOT_CMD_MKENT(status, 1, 1, do_demo_status, "", ""),
-};
-
-static int do_demo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	cmd_tbl_t *demo_cmd;
-	int devnum = 0;
-	int ret;
-
-	if (argc < 2)
-		return CMD_RET_USAGE;
-	demo_cmd = find_cmd_tbl(argv[1], demo_commands,
-				ARRAY_SIZE(demo_commands));
-	argc -= 2;
-	argv += 2;
-
-	if ((!demo_cmd || argc > demo_cmd->maxargs) ||
-	    ((demo_cmd->name[0] != 'l') && (argc < 1)))
-		return CMD_RET_USAGE;
-
-	if (argc) {
-		devnum = simple_strtoul(argv[0], NULL, 10);
-		ret = uclass_get_device(UCLASS_DEMO, devnum, &demo_dev);
-		if (ret)
-			return cmd_process_error(cmdtp, ret);
-		argc--;
-		argv++;
-	} else {
-		demo_dev = NULL;
-		if (demo_cmd->cmd != do_demo_list)
-			return CMD_RET_USAGE;
-	}
-
-	ret = demo_cmd->cmd(demo_cmd, flag, argc, argv);
-
-	return cmd_process_error(demo_cmd, ret);
-}
-
-U_BOOT_CMD(
-	demo,   4,      1,      do_demo,
+U_BOOT_CMD_WITH_SUBCMDS(demo,
 	"Driver model (dm) demo operations",
 	"list                     List available demo devices\n"
 	"demo hello <num> [<char>]     Say hello\n"
-	"demo light [<num>]            Set or get the lights\n"
-	"demo status <num>             Get demo device status\n"
-	"demo list                     List available demo devices"
-);
+	"demo light <num> [<val>]      Set or get the lights\n"
+	"demo status <num>             Get demo device status\n",
+	U_BOOT_SUBCMD_MKENT(list, 1, 1, do_demo_list),
+	U_BOOT_SUBCMD_MKENT(hello, 3, 1, do_demo_hello),
+	U_BOOT_SUBCMD_MKENT(light, 3, 1, do_demo_light),
+	U_BOOT_SUBCMD_MKENT(status, 2, 1, do_demo_status));
