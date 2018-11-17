@@ -139,36 +139,8 @@ static int do_host_dev(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static cmd_tbl_t cmd_host_sub[] = {
-	U_BOOT_CMD_MKENT(load, 7, 0, do_host_load, "", ""),
-	U_BOOT_CMD_MKENT(ls, 3, 0, do_host_ls, "", ""),
-	U_BOOT_CMD_MKENT(save, 6, 0, do_host_save, "", ""),
-	U_BOOT_CMD_MKENT(size, 3, 0, do_host_size, "", ""),
-	U_BOOT_CMD_MKENT(bind, 3, 0, do_host_bind, "", ""),
-	U_BOOT_CMD_MKENT(info, 3, 0, do_host_info, "", ""),
-	U_BOOT_CMD_MKENT(dev, 0, 1, do_host_dev, "", ""),
-};
-
-static int do_host(cmd_tbl_t *cmdtp, int flag, int argc,
-		      char * const argv[])
-{
-	cmd_tbl_t *c;
-
-	/* Skip past 'host' */
-	argc--;
-	argv++;
-
-	c = find_cmd_tbl(argv[0], cmd_host_sub,
-			 ARRAY_SIZE(cmd_host_sub));
-
-	if (c)
-		return c->cmd(cmdtp, flag, argc, argv);
-	else
-		return CMD_RET_USAGE;
-}
-
-U_BOOT_CMD(
-	host, 8, 1, do_host,
+U_BOOT_CMD_WITH_SUBCMDS(
+	host,
 	"Miscellaneous host commands",
 	"load hostfs - <addr> <filename> [<bytes> <offset>]  - "
 		"load a file from host\n"
@@ -180,5 +152,11 @@ U_BOOT_CMD(
 	"host info [<dev>]            - show device binding & info\n"
 	"host dev [<dev>] - Set or retrieve the current host device\n"
 	"host commands use the \"hostfs\" device. The \"host\" device is used\n"
-	"with standard IO commands such as fatls or ext2load"
-);
+	"with standard IO commands such as fatls or ext2load",
+	U_BOOT_SUBCMD_MKENT(load, 7, 0, do_host_load),
+	U_BOOT_SUBCMD_MKENT(ls, 3, 0, do_host_ls),
+	U_BOOT_SUBCMD_MKENT(save, 6, 0, do_host_save),
+	U_BOOT_SUBCMD_MKENT(size, 3, 0, do_host_size),
+	U_BOOT_SUBCMD_MKENT(bind, 3, 0, do_host_bind),
+	U_BOOT_SUBCMD_MKENT(info, 3, 0, do_host_info),
+	U_BOOT_SUBCMD_MKENT(dev, 0, 1, do_host_dev));
