@@ -250,33 +250,6 @@ static int do_osd_num(cmd_tbl_t *cmdtp, int flag, int argc,
 	return res ? CMD_RET_FAILURE : CMD_RET_SUCCESS;
 }
 
-static cmd_tbl_t cmd_osd_sub[] = {
-	U_BOOT_CMD_MKENT(show, 1, 1, do_show_osd, "", ""),
-	U_BOOT_CMD_MKENT(dev, 1, 1, do_osd_num, "", ""),
-	U_BOOT_CMD_MKENT(write, 4, 1, do_osd_write, "", ""),
-	U_BOOT_CMD_MKENT(print, 4, 1, do_osd_print, "", ""),
-	U_BOOT_CMD_MKENT(size, 2, 1, do_osd_size, "", ""),
-};
-
-static int do_osd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	cmd_tbl_t *c;
-
-	if (argc < 2)
-		return CMD_RET_USAGE;
-
-	/* Strip off leading 'osd' command argument */
-	argc--;
-	argv++;
-
-	c = find_cmd_tbl(argv[0], &cmd_osd_sub[0], ARRAY_SIZE(cmd_osd_sub));
-
-	if (c)
-		return c->cmd(cmdtp, flag, argc, argv);
-	else
-		return CMD_RET_USAGE;
-}
-
 static char osd_help_text[] =
 	"show  - show OSD info\n"
 	"osd dev [dev] - show or set current OSD\n"
@@ -284,8 +257,13 @@ static char osd_help_text[] =
 	"print [pos_x] [pos_y] [color] [text] - write ASCII buffer (given by text data and driver-specific color information) to osd memory\n"
 	"size [size_x] [size_y] - set OSD XY size in characters\n";
 
-U_BOOT_CMD(
-	osd, 6, 1, do_osd,
+U_BOOT_CMD_WITH_SUBCMDS(
+	osd,
 	"OSD sub-system",
-	osd_help_text
+	osd_help_text,
+	U_BOOT_SUBCMD_MKENT(show, 1, 1, do_show_osd),
+	U_BOOT_SUBCMD_MKENT(dev, 1, 1, do_osd_num),
+	U_BOOT_SUBCMD_MKENT(write, 4, 1, do_osd_write),
+	U_BOOT_SUBCMD_MKENT(print, 4, 1, do_osd_print),
+	U_BOOT_SUBCMD_MKENT(size, 2, 1, do_osd_size),
 );
