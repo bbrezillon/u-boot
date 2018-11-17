@@ -940,37 +940,18 @@ static int do_hsdk_clock_print_all(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 
 cmd_tbl_t cmd_hsdk_clock[] = {
-	U_BOOT_CMD_MKENT(set, 3, 0, do_hsdk_clock_set, "", ""),
-	U_BOOT_CMD_MKENT(get, 3, 0, do_hsdk_clock_get, "", ""),
-	U_BOOT_CMD_MKENT(print, 4, 0, do_hsdk_clock_print, "", ""),
-	U_BOOT_CMD_MKENT(print_all, 4, 0, do_hsdk_clock_print_all, "", ""),
 };
 
-static int do_hsdk_clock(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
-{
-	cmd_tbl_t *c;
-
-	if (argc < 2)
-		return CMD_RET_USAGE;
-
-	/* Strip off leading 'hsdk_clock' command argument */
-	argc--;
-	argv++;
-
-	c = find_cmd_tbl(argv[0], cmd_hsdk_clock, ARRAY_SIZE(cmd_hsdk_clock));
-	if (!c)
-		return CMD_RET_USAGE;
-
-	return c->cmd(cmdtp, flag, argc, argv);
-}
-
-U_BOOT_CMD(
-	hsdk_clock, CONFIG_SYS_MAXARGS, 0, do_hsdk_clock,
+U_BOOT_CMD_WITH_SUBCMDS(hsdk_clock,
 	"Synopsys HSDK specific clock command",
 	"set   - Set clock to values specified in environment / command line arguments\n"
 	"hsdk_clock get   - Save clock values to environment\n"
 	"hsdk_clock print - Print main clock values to console\n"
-	"hsdk_clock print_all - Print all clock values to console\n"
+	"hsdk_clock print_all - Print all clock values to console\n",
+	U_BOOT_SUBCMD_MKENT(set, 3, 0, do_hsdk_clock_set),
+	U_BOOT_SUBCMD_MKENT(get, 3, 0, do_hsdk_clock_get),
+	U_BOOT_SUBCMD_MKENT(print, 4, 0, do_hsdk_clock_print),
+	U_BOOT_SUBCMD_MKENT(print_all, 4, 0, do_hsdk_clock_print_all),
 );
 
 /* init calls */
