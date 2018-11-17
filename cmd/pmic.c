@@ -183,34 +183,16 @@ static int do_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_SUCCESS;
 }
 
-static cmd_tbl_t subcmd[] = {
-	U_BOOT_CMD_MKENT(dev, 2, 1, do_dev, "", ""),
-	U_BOOT_CMD_MKENT(list, 1, 1, do_list, "", ""),
-	U_BOOT_CMD_MKENT(dump, 1, 1, do_dump, "", ""),
-	U_BOOT_CMD_MKENT(read, 2, 1, do_read, "", ""),
-	U_BOOT_CMD_MKENT(write, 3, 1, do_write, "", ""),
-};
-
-static int do_pmic(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
-{
-	cmd_tbl_t *cmd;
-
-	argc--;
-	argv++;
-
-	cmd = find_cmd_tbl(argv[0], subcmd, ARRAY_SIZE(subcmd));
-	if (cmd == NULL || argc > cmd->maxargs)
-		return CMD_RET_USAGE;
-
-	return cmd->cmd(cmdtp, flag, argc, argv);
-}
-
-U_BOOT_CMD(pmic, CONFIG_SYS_MAXARGS, 1, do_pmic,
+U_BOOT_CMD_WITH_SUBCMDS(pmic,
 	"PMIC sub-system",
 	"list          - list pmic devices\n"
 	"pmic dev [name]    - show or [set] operating PMIC device\n"
 	"pmic dump          - dump registers\n"
 	"pmic read address  - read byte of register at address\n"
-	"pmic write address - write byte to register at address\n"
+	"pmic write address - write byte to register at address\n",
+	U_BOOT_SUBCMD_MKENT(dev, 2, 1, do_dev),
+	U_BOOT_SUBCMD_MKENT(list, 1, 1, do_list),
+	U_BOOT_SUBCMD_MKENT(dump, 1, 1, do_dump),
+	U_BOOT_SUBCMD_MKENT(read, 2, 1, do_read),
+	U_BOOT_SUBCMD_MKENT(write, 3, 1, do_write),
 );
