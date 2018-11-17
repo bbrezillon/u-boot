@@ -98,32 +98,7 @@ static int do_dtimg_size(cmd_tbl_t *cmdtp, int flag, int argc,
 	return dtimg_get_fdt(argc, argv, CMD_DTIMG_SIZE);
 }
 
-static cmd_tbl_t cmd_dtimg_sub[] = {
-	U_BOOT_CMD_MKENT(dump, 2, 0, do_dtimg_dump, "", ""),
-	U_BOOT_CMD_MKENT(start, 4, 0, do_dtimg_start, "", ""),
-	U_BOOT_CMD_MKENT(size, 4, 0, do_dtimg_size, "", ""),
-};
-
-static int do_dtimg(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	cmd_tbl_t *cp;
-
-	cp = find_cmd_tbl(argv[1], cmd_dtimg_sub, ARRAY_SIZE(cmd_dtimg_sub));
-
-	/* Strip off leading 'dtimg' command argument */
-	argc--;
-	argv++;
-
-	if (!cp || argc > cp->maxargs)
-		return CMD_RET_USAGE;
-	if (flag == CMD_FLAG_REPEAT && !cmd_is_repeatable(cp))
-		return CMD_RET_SUCCESS;
-
-	return cp->cmd(cmdtp, flag, argc, argv);
-}
-
-U_BOOT_CMD(
-	dtimg, CONFIG_SYS_MAXARGS, 0, do_dtimg,
+U_BOOT_CMD_WITH_SUBCMDS(dtimg,
 	"manipulate dtb/dtbo Android image",
 	"dump <addr>\n"
 	"    - parse specified image and print its structure info\n"
@@ -137,5 +112,7 @@ U_BOOT_CMD(
 	"    - get size (hex, bytes) of FDT in the image, by index\n"
 	"      <addr>: image address in RAM, in hex\n"
 	"      <index>: index of desired FDT in the image\n"
-	"      <varname>: name of variable where to store size of FDT"
-);
+	"      <varname>: name of variable where to store size of FDT",
+	U_BOOT_SUBCMD_MKENT(dump, 2, 0, do_dtimg_dump),
+	U_BOOT_SUBCMD_MKENT(start, 4, 0, do_dtimg_start),
+	U_BOOT_SUBCMD_MKENT(size, 4, 0, do_dtimg_size));
