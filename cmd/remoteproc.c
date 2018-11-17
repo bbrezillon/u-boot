@@ -202,80 +202,31 @@ static int do_remoteproc_wrapper(cmd_tbl_t *cmdtp, int flag, int argc,
 	return ret ? CMD_RET_FAILURE : 0;
 }
 
-static cmd_tbl_t cmd_remoteproc_sub[] = {
-	U_BOOT_CMD_MKENT(init, 0, 1, do_rproc_init,
-			 "Enumerate and initialize all processors", ""),
-	U_BOOT_CMD_MKENT(list, 0, 1, do_remoteproc_list,
-			 "list remote processors", ""),
-	U_BOOT_CMD_MKENT(load, 5, 1, do_remoteproc_load,
-			 "Load remote processor with provided image",
-			 "<id> [addr] [size]\n"
-			 "- id: ID of the remote processor(see 'list' cmd)\n"
-			 "- addr: Address in memory of the image to loadup\n"
-			 "- size: Size of the image to loadup\n"),
-	U_BOOT_CMD_MKENT(start, 1, 1, do_remoteproc_wrapper,
-			 "Start remote processor",
-			 "id - ID of the remote processor (see 'list' cmd)\n"),
-	U_BOOT_CMD_MKENT(stop, 1, 1, do_remoteproc_wrapper,
-			 "Stop remote processor",
-			 "id - ID of the remote processor (see 'list' cmd)\n"),
-	U_BOOT_CMD_MKENT(reset, 1, 1, do_remoteproc_wrapper,
-			 "Reset remote processor",
-			 "id - ID of the remote processor (see 'list' cmd)\n"),
-	U_BOOT_CMD_MKENT(is_running, 1, 1, do_remoteproc_wrapper,
-			 "Check to see if remote processor is running\n",
-			 "id - ID of the remote processor (see 'list' cmd)\n"),
-	U_BOOT_CMD_MKENT(ping, 1, 1, do_remoteproc_wrapper,
-			 "Ping to communicate with remote processor\n",
-			 "id - ID of the remote processor (see 'list' cmd)\n"),
-};
-
-/**
- * do_remoteproc() - (replace: short desc)
- * @cmdtp:	unused
- * @flag:	unused
- * @argc:	argument count
- * @argv:	argument list
- *
- * parses up the command table to invoke the correct command.
- *
- * Return: 0 if no error, else returns appropriate error value.
- */
-static int do_remoteproc(cmd_tbl_t *cmdtp, int flag, int argc,
-			 char *const argv[])
-{
-	cmd_tbl_t *c = NULL;
-
-	/* Strip off leading 'rproc' command argument */
-	argc--;
-	argv++;
-
-	if (argc)
-		c = find_cmd_tbl(argv[0], cmd_remoteproc_sub,
-				 ARRAY_SIZE(cmd_remoteproc_sub));
-	if (c)
-		return c->cmd(cmdtp, flag, argc, argv);
-
-	return CMD_RET_USAGE;
-}
-
-U_BOOT_CMD(rproc, 5, 1, do_remoteproc,
-	   "Control operation of remote processors in an SoC",
-	   " [init|list|load|start|stop|reset|is_running|ping]\n"
-	   "\t\t Where:\n"
-	   "\t\t[addr] is a memory address\n"
-	   "\t\t<id> is a numerical identifier for the remote processor\n"
-	   "\t\t     provided by 'list' command.\n"
-	   "\t\tNote: Remote processors must be initalized prior to usage\n"
-	   "\t\tNote: Services are dependent on the driver capability\n"
-	   "\t\t      'list' command shows the capability of each device\n"
-	   "\n\tSubcommands:\n"
-	   "\tinit   - Enumerate and initalize the remote processors\n"
-	   "\tlist   - list available remote processors\n"
-	   "\tload <id> [addr] [size]- Load the remote processor with binary\n"
-	   "\t		  image stored at address [addr] in memory\n"
-	   "\tstart <id>	- Start the remote processor(must be loaded)\n"
-	   "\tstop <id>	- Stop the remote processor\n"
-	   "\treset <id>	- Reset the remote processor\n"
-	   "\tis_running <id> - Reports if the remote processor is running\n"
-	   "\tping <id>	- Ping the remote processor for communication\n");
+U_BOOT_CMD_WITH_SUBCMDS(rproc,
+	"Control operation of remote processors in an SoC",
+	" [init|list|load|start|stop|reset|is_running|ping]\n"
+	"\t\t Where:\n"
+	"\t\t[addr] is a memory address\n"
+	"\t\t<id> is a numerical identifier for the remote processor\n"
+	"\t\t     provided by 'list' command.\n"
+	"\t\tNote: Remote processors must be initalized prior to usage\n"
+	"\t\tNote: Services are dependent on the driver capability\n"
+	"\t\t      'list' command shows the capability of each device\n"
+	"\n\tSubcommands:\n"
+	"\tinit   - Enumerate and initalize the remote processors\n"
+	"\tlist   - list available remote processors\n"
+	"\tload <id> [addr] [size]- Load the remote processor with binary\n"
+	"\t		  image stored at address [addr] in memory\n"
+	"\tstart <id>	- Start the remote processor(must be loaded)\n"
+	"\tstop <id>	- Stop the remote processor\n"
+	"\treset <id>	- Reset the remote processor\n"
+	"\tis_running <id> - Reports if the remote processor is running\n"
+	"\tping <id>	- Ping the remote processor for communication\n",
+	U_BOOT_SUBCMD_MKENT(init, 1, 1, do_rproc_init),
+	U_BOOT_SUBCMD_MKENT(list, 1, 1, do_remoteproc_list),
+	U_BOOT_SUBCMD_MKENT(load, 4, 1, do_remoteproc_load),
+	U_BOOT_SUBCMD_MKENT(start, 2, 1, do_remoteproc_wrapper),
+	U_BOOT_SUBCMD_MKENT(stop, 2, 1, do_remoteproc_wrapper),
+	U_BOOT_SUBCMD_MKENT(reset, 2, 1, do_remoteproc_wrapper),
+	U_BOOT_SUBCMD_MKENT(is_running, 2, 1, do_remoteproc_wrapper),
+	U_BOOT_SUBCMD_MKENT(ping, 2, 1, do_remoteproc_wrapper));
