@@ -46,34 +46,9 @@ static int do_play(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	return 0;
 }
 
-static cmd_tbl_t cmd_sound_sub[] = {
-	U_BOOT_CMD_MKENT(init, 0, 1, do_init, "", ""),
-	U_BOOT_CMD_MKENT(play, 2, 1, do_play, "", ""),
-};
-
-/* process sound command */
-static int do_sound(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
-{
-	cmd_tbl_t *c;
-
-	if (argc < 1)
-		return CMD_RET_USAGE;
-
-	/* Strip off leading 'sound' command argument */
-	argc--;
-	argv++;
-
-	c = find_cmd_tbl(argv[0], &cmd_sound_sub[0], ARRAY_SIZE(cmd_sound_sub));
-
-	if (c)
-		return c->cmd(cmdtp, flag, argc, argv);
-	else
-		return CMD_RET_USAGE;
-}
-
-U_BOOT_CMD(
-	sound, 4, 1, do_sound,
+U_BOOT_CMD_WITH_SUBCMDS(sound,
 	"sound sub-system",
 	"init - initialise the sound driver\n"
-	"sound play [len] [freq] - play a sound for len ms at freq hz\n"
-);
+	"sound play [len] [freq] - play a sound for len ms at freq hz\n",
+	U_BOOT_SUBCMD_MKENT(init, 1, 1, do_init),
+	U_BOOT_SUBCMD_MKENT(play, 3, 1, do_play));
