@@ -1944,80 +1944,6 @@ static int do_i2c_reset(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv
 	return 0;
 }
 
-static cmd_tbl_t cmd_i2c_sub[] = {
-#if defined(CONFIG_SYS_I2C) || defined(CONFIG_DM_I2C)
-	U_BOOT_CMD_MKENT(bus, 1, 1, do_i2c_show_bus, "", ""),
-#endif
-	U_BOOT_CMD_MKENT(crc32, 3, 1, do_i2c_crc, "", ""),
-#if defined(CONFIG_SYS_I2C) || \
-	defined(CONFIG_I2C_MULTI_BUS) || defined(CONFIG_DM_I2C)
-	U_BOOT_CMD_MKENT(dev, 1, 1, do_i2c_bus_num, "", ""),
-#endif  /* CONFIG_I2C_MULTI_BUS */
-#if defined(CONFIG_I2C_EDID)
-	U_BOOT_CMD_MKENT(edid, 1, 1, do_edid, "", ""),
-#endif  /* CONFIG_I2C_EDID */
-	U_BOOT_CMD_MKENT(loop, 3, 1, do_i2c_loop, "", ""),
-	U_BOOT_CMD_MKENT(md, 3, 1, do_i2c_md, "", ""),
-	U_BOOT_CMD_MKENT(mm, 2, 1, do_i2c_mm, "", ""),
-	U_BOOT_CMD_MKENT(mw, 3, 1, do_i2c_mw, "", ""),
-	U_BOOT_CMD_MKENT(nm, 2, 1, do_i2c_nm, "", ""),
-	U_BOOT_CMD_MKENT(probe, 0, 1, do_i2c_probe, "", ""),
-	U_BOOT_CMD_MKENT(read, 5, 1, do_i2c_read, "", ""),
-	U_BOOT_CMD_MKENT(write, 6, 0, do_i2c_write, "", ""),
-#ifdef CONFIG_DM_I2C
-	U_BOOT_CMD_MKENT(flags, 2, 1, do_i2c_flags, "", ""),
-	U_BOOT_CMD_MKENT(olen, 2, 1, do_i2c_olen, "", ""),
-#endif
-	U_BOOT_CMD_MKENT(reset, 0, 1, do_i2c_reset, "", ""),
-#if defined(CONFIG_CMD_SDRAM)
-	U_BOOT_CMD_MKENT(sdram, 1, 1, do_sdram, "", ""),
-#endif
-	U_BOOT_CMD_MKENT(speed, 1, 1, do_i2c_bus_speed, "", ""),
-};
-
-static __maybe_unused void i2c_reloc(void)
-{
-	static int relocated;
-
-	if (!relocated) {
-		fixup_cmdtable(cmd_i2c_sub, ARRAY_SIZE(cmd_i2c_sub));
-		relocated = 1;
-	};
-}
-
-/**
- * do_i2c() - Handle the "i2c" command-line command
- * @cmdtp:	Command data struct pointer
- * @flag:	Command flag
- * @argc:	Command-line argument count
- * @argv:	Array of command-line arguments
- *
- * Returns zero on success, CMD_RET_USAGE in case of misuse and negative
- * on error.
- */
-static int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
-{
-	cmd_tbl_t *c;
-
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-	i2c_reloc();
-#endif
-
-	if (argc < 2)
-		return CMD_RET_USAGE;
-
-	/* Strip off leading 'i2c' command argument */
-	argc--;
-	argv++;
-
-	c = find_cmd_tbl(argv[0], &cmd_i2c_sub[0], ARRAY_SIZE(cmd_i2c_sub));
-
-	if (c)
-		return c->cmd(cmdtp, flag, argc, argv);
-	else
-		return CMD_RET_USAGE;
-}
-
 /***************************************************/
 #ifdef CONFIG_SYS_LONGHELP
 static char i2c_help_text[] =
@@ -2052,8 +1978,33 @@ static char i2c_help_text[] =
 	"i2c speed [speed] - show or set I2C bus speed";
 #endif
 
-U_BOOT_CMD(
-	i2c, 7, 1, do_i2c,
-	"I2C sub-system",
-	i2c_help_text
+U_BOOT_CMD_WITH_SUBCMDS(i2c, "I2C sub-system", i2c_help_text,
+#if defined(CONFIG_SYS_I2C) || defined(CONFIG_DM_I2C)
+	U_BOOT_SUBCMD_MKENT(bus, 1, 1, do_i2c_show_bus),
+#endif
+	U_BOOT_SUBCMD_MKENT(crc32, 3, 1, do_i2c_crc),
+#if defined(CONFIG_SYS_I2C) || \
+	defined(CONFIG_I2C_MULTI_BUS) || defined(CONFIG_DM_I2C)
+	U_BOOT_SUBCMD_MKENT(dev, 1, 1, do_i2c_bus_num),
+#endif  /* CONFIG_I2C_MULTI_BUS */
+#if defined(CONFIG_I2C_EDID)
+	U_BOOT_SUBCMD_MKENT(edid, 1, 1, do_edid),
+#endif  /* CONFIG_I2C_EDID */
+	U_BOOT_SUBCMD_MKENT(loop, 3, 1, do_i2c_loop),
+	U_BOOT_SUBCMD_MKENT(md, 3, 1, do_i2c_md),
+	U_BOOT_SUBCMD_MKENT(mm, 2, 1, do_i2c_mm),
+	U_BOOT_SUBCMD_MKENT(mw, 3, 1, do_i2c_mw),
+	U_BOOT_SUBCMD_MKENT(nm, 2, 1, do_i2c_nm),
+	U_BOOT_SUBCMD_MKENT(probe, 0, 1, do_i2c_probe),
+	U_BOOT_SUBCMD_MKENT(read, 5, 1, do_i2c_read),
+	U_BOOT_SUBCMD_MKENT(write, 6, 0, do_i2c_write),
+#ifdef CONFIG_DM_I2C
+	U_BOOT_SUBCMD_MKENT(flags, 2, 1, do_i2c_flags),
+	U_BOOT_SUBCMD_MKENT(olen, 2, 1, do_i2c_olen),
+#endif
+	U_BOOT_SUBCMD_MKENT(reset, 0, 1, do_i2c_reset),
+#if defined(CONFIG_CMD_SDRAM)
+	U_BOOT_SUBCMD_MKENT(sdram, 1, 1, do_sdram),
+#endif
+	U_BOOT_SUBCMD_MKENT(speed, 1, 1, do_i2c_bus_speed),
 );
