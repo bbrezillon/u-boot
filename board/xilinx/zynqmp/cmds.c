@@ -126,43 +126,6 @@ static int do_zynqmp_tcm_init(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 #endif
 
-static cmd_tbl_t cmd_zynqmp_sub[] = {
-	U_BOOT_CMD_MKENT(secure, 5, 0, do_zynqmp_verify_secure, "", ""),
-	U_BOOT_CMD_MKENT(mmio_read, 3, 0, do_zynqmp_mmio_read, "", ""),
-	U_BOOT_CMD_MKENT(mmio_write, 5, 0, do_zynqmp_mmio_write, "", ""),
-#ifdef CONFIG_DEFINE_TCM_OCM_MMAP
-	U_BOOT_CMD_MKENT(tcminit, 3, 0, do_zynqmp_tcm_init, "", ""),
-#endif
-};
-
-/**
- * do_zynqmp - Handle the "zynqmp" command-line command
- * @cmdtp:	Command data struct pointer
- * @flag:	Command flag
- * @argc:	Command-line argument count
- * @argv:	Array of command-line arguments
- *
- * Processes the zynqmp specific commands
- *
- * Return: return 0 on success and CMD_RET_USAGE incase of misuse and error
- */
-static int do_zynqmp(cmd_tbl_t *cmdtp, int flag, int argc,
-		     char *const argv[])
-{
-	cmd_tbl_t *c;
-
-	if (argc < 2)
-		return CMD_RET_USAGE;
-
-	c = find_cmd_tbl(argv[1], &cmd_zynqmp_sub[0],
-			 ARRAY_SIZE(cmd_zynqmp_sub));
-
-	if (c)
-		return c->cmd(c, flag, argc, argv);
-	else
-		return CMD_RET_USAGE;
-}
-
 /***************************************************/
 #ifdef CONFIG_SYS_LONGHELP
 static char zynqmp_help_text[] =
@@ -183,8 +146,13 @@ static char zynqmp_help_text[] =
 	;
 #endif
 
-U_BOOT_CMD(
-	zynqmp, 5, 1, do_zynqmp,
+U_BOOT_CMD_WITH_SUBCMDS(zynqmp,
 	"ZynqMP sub-system",
-	zynqmp_help_text
-)
+	zynqmp_help_text,
+	U_BOOT_SUBCMD_MKENT(secure, 4, 0, do_zynqmp_verify_secure),
+	U_BOOT_SUBCMD_MKENT(mmio_read, 2, 0, do_zynqmp_mmio_read),
+	U_BOOT_SUBCMD_MKENT(mmio_write, 4, 0, do_zynqmp_mmio_write),
+#ifdef CONFIG_DEFINE_TCM_OCM_MMAP
+	U_BOOT_SUBCMD_MKENT(tcminit, 2, 0, do_zynqmp_tcm_init),
+#endif
+);
