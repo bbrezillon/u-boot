@@ -82,36 +82,9 @@ static int do_cpu_detail(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static cmd_tbl_t cmd_cpu_sub[] = {
-	U_BOOT_CMD_MKENT(list, 2, 1, do_cpu_list, "", ""),
-	U_BOOT_CMD_MKENT(detail, 4, 0, do_cpu_detail, "", ""),
-};
-
-/*
- * Process a cpu sub-command
- */
-static int do_cpu(cmd_tbl_t *cmdtp, int flag, int argc,
-		  char * const argv[])
-{
-	cmd_tbl_t *c = NULL;
-
-	/* Strip off leading 'cpu' command argument */
-	argc--;
-	argv++;
-
-	if (argc)
-		c = find_cmd_tbl(argv[0], cmd_cpu_sub,
-				 ARRAY_SIZE(cmd_cpu_sub));
-
-	if (c)
-		return c->cmd(cmdtp, flag, argc, argv);
-	else
-		return CMD_RET_USAGE;
-}
-
-U_BOOT_CMD(
-	cpu, 2, 1, do_cpu,
+U_BOOT_CMD_WITH_SUBCMDS(cpu,
 	"display information about CPUs",
 	"list	- list available CPUs\n"
-	"cpu detail	- show CPU detail"
-);
+	"cpu detail	- show CPU detail",
+	U_BOOT_SUBCMD_MKENT(list, 2, 1, do_cpu_list),
+	U_BOOT_SUBCMD_MKENT(detail, 4, 0, do_cpu_detail));
