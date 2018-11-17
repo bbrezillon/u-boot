@@ -416,34 +416,7 @@ static int do_disable(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_SUCCESS;
 }
 
-static cmd_tbl_t subcmd[] = {
-	U_BOOT_CMD_MKENT(dev, 2, 1, do_dev, "", ""),
-	U_BOOT_CMD_MKENT(list, 1, 1, do_list, "", ""),
-	U_BOOT_CMD_MKENT(info, 2, 1, do_info, "", ""),
-	U_BOOT_CMD_MKENT(status, 2, 1, do_status, "", ""),
-	U_BOOT_CMD_MKENT(value, 3, 1, do_value, "", ""),
-	U_BOOT_CMD_MKENT(current, 3, 1, do_current, "", ""),
-	U_BOOT_CMD_MKENT(mode, 2, 1, do_mode, "", ""),
-	U_BOOT_CMD_MKENT(enable, 1, 1, do_enable, "", ""),
-	U_BOOT_CMD_MKENT(disable, 1, 1, do_disable, "", ""),
-};
-
-static int do_regulator(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
-{
-	cmd_tbl_t *cmd;
-
-	argc--;
-	argv++;
-
-	cmd = find_cmd_tbl(argv[0], subcmd, ARRAY_SIZE(subcmd));
-	if (cmd == NULL || argc > cmd->maxargs)
-		return CMD_RET_USAGE;
-
-	return cmd->cmd(cmdtp, flag, argc, argv);
-}
-
-U_BOOT_CMD(regulator, CONFIG_SYS_MAXARGS, 1, do_regulator,
+U_BOOT_CMD_WITH_SUBCMDS(regulator,
 	"uclass operations",
 	"list             - list UCLASS regulator devices\n"
 	"regulator dev [regulator-name] - show/[set] operating regulator device\n"
@@ -453,5 +426,14 @@ U_BOOT_CMD(regulator, CONFIG_SYS_MAXARGS, 1, do_regulator,
 	"regulator current [val]        - print/[set] current value [uA]\n"
 	"regulator mode [id]            - print/[set] operating mode id\n"
 	"regulator enable               - enable the regulator output\n"
-	"regulator disable              - disable the regulator output\n"
+	"regulator disable              - disable the regulator output\n",
+	U_BOOT_SUBCMD_MKENT(dev, 2, 1, do_dev),
+	U_BOOT_SUBCMD_MKENT(list, 1, 1, do_list),
+	U_BOOT_SUBCMD_MKENT(info, 2, 1, do_info),
+	U_BOOT_SUBCMD_MKENT(status, 2, 1, do_status),
+	U_BOOT_SUBCMD_MKENT(value, 3, 1, do_value),
+	U_BOOT_SUBCMD_MKENT(current, 3, 1, do_current),
+	U_BOOT_SUBCMD_MKENT(mode, 2, 1, do_mode),
+	U_BOOT_SUBCMD_MKENT(enable, 1, 1, do_enable),
+	U_BOOT_SUBCMD_MKENT(disable, 1, 1, do_disable),
 );
