@@ -94,33 +94,6 @@ static int do_log_rec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-static cmd_tbl_t log_sub[] = {
-	U_BOOT_CMD_MKENT(level, CONFIG_SYS_MAXARGS, 1, do_log_level, "", ""),
-#ifdef CONFIG_LOG_TEST
-	U_BOOT_CMD_MKENT(test, 2, 1, do_log_test, "", ""),
-#endif
-	U_BOOT_CMD_MKENT(format, CONFIG_SYS_MAXARGS, 1, do_log_format, "", ""),
-	U_BOOT_CMD_MKENT(rec, CONFIG_SYS_MAXARGS, 1, do_log_rec, "", ""),
-};
-
-static int do_log(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	cmd_tbl_t *cp;
-
-	if (argc < 2)
-		return CMD_RET_USAGE;
-
-	/* drop initial "log" arg */
-	argc--;
-	argv++;
-
-	cp = find_cmd_tbl(argv[0], log_sub, ARRAY_SIZE(log_sub));
-	if (cp)
-		return cp->cmd(cmdtp, flag, argc, argv);
-
-	return CMD_RET_USAGE;
-}
-
 #ifdef CONFIG_SYS_LONGHELP
 static char log_help_text[] =
 	"level - get/set log level\n"
@@ -136,7 +109,11 @@ static char log_help_text[] =
 	;
 #endif
 
-U_BOOT_CMD(
-	log, CONFIG_SYS_MAXARGS, 1, do_log,
-	"log system", log_help_text
+U_BOOT_CMD_WITH_SUBCMDS(log, "log system", log_help_text,
+	U_BOOT_SUBCMD_MKENT(level, CONFIG_SYS_MAXARGS, 1, do_log_level),
+#ifdef CONFIG_LOG_TEST
+	U_BOOT_SUBCMD_MKENT(test, 2, 1, do_log_test),
+#endif
+	U_BOOT_SUBCMD_MKENT(format, CONFIG_SYS_MAXARGS, 1, do_log_format),
+	U_BOOT_SUBCMD_MKENT(rec, CONFIG_SYS_MAXARGS, 1, do_log_rec),
 );
