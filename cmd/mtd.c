@@ -517,6 +517,36 @@ static int mtd_name_complete(int argc, char * const argv[], char last_char,
 
 	return n_found;
 }
+
+static int subcmd_complete(int maxargs, int argc, char * const argv[],
+			   char last_char, int maxv, char *cmdv[])
+{
+	if (argc > maxargs)
+		return 0;
+
+	if (argc <= 2)
+		return mtd_name_complete(argc, argv, last_char, maxv, cmdv);
+
+	return dollar_complete(argc, argv, last_char, maxv, cmdv);
+}
+
+static int four_args_complete(int argc, char * const argv[], char last_char,
+			      int maxv, char *cmdv[])
+{
+	return subcmd_complete(5, argc, argv, last_char, maxv, cmdv);
+}
+
+static int three_args_complete(int argc, char * const argv[], char last_char,
+			       int maxv, char *cmdv[])
+{
+	return subcmd_complete(4, argc, argv, last_char, maxv, cmdv);
+}
+
+static int one_arg_complete(int argc, char * const argv[], char last_char,
+			    int maxv, char *cmdv[])
+{
+	return subcmd_complete(2, argc, argv, last_char, maxv, cmdv);
+}
 #endif /* CONFIG_AUTO_COMPLETE */
 
 static char mtd_help_text[] =
@@ -548,12 +578,12 @@ static char mtd_help_text[] =
 U_BOOT_CMD_WITH_SUBCMDS(mtd, "MTD utils", mtd_help_text,
 		U_BOOT_SUBCMD_MKENT(list, 1, 1, do_mtd_list),
 		U_BOOT_SUBCMD_MKENT_COMPLETE(read, 5, 0, do_mtd_io,
-					     mtd_name_complete),
+					     four_args_complete),
 		U_BOOT_SUBCMD_MKENT_COMPLETE(write, 5, 0, do_mtd_io,
-					     mtd_name_complete),
+					     four_args_complete),
 		U_BOOT_SUBCMD_MKENT_COMPLETE(dump, 4, 0, do_mtd_io,
-					     mtd_name_complete),
+					     three_args_complete),
 		U_BOOT_SUBCMD_MKENT_COMPLETE(erase, 4, 0, do_mtd_erase,
-					     mtd_name_complete),
+					     three_args_complete),
 		U_BOOT_SUBCMD_MKENT_COMPLETE(bad, 2, 1, do_mtd_bad,
-					     mtd_name_complete));
+					     one_arg_complete));
