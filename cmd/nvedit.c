@@ -379,6 +379,17 @@ static int do_env_set(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return _do_env_set(flag, argc, argv, H_INTERACTIVE);
 }
 
+#ifdef CONFIG_AUTO_COMPLETE
+int env_set_complete(int argc, char * const argv[], char last_char, int maxv,
+		     char *cmdv[])
+{
+	if (argc <= 2)
+		return var_complete(argc, argv, last_char, maxv, cmdv);
+
+	return dollar_complete(argc, argv, last_char, maxv, cmdv);
+}
+#endif
+
 /*
  * Prompt for environment variable
  */
@@ -1247,7 +1258,7 @@ U_BOOT_CMD_WITH_SUBCMDS(env, "environment handling commands", env_help_text,
 	U_BOOT_SUBCMD_MKENT(exists, 2, 0, do_env_exists),
 #endif
 	U_BOOT_SUBCMD_MKENT_COMPLETE(set, CONFIG_SYS_MAXARGS, 0, do_env_set,
-				     var_complete));
+				     env_set_complete));
 
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 void env_reloc(void)
