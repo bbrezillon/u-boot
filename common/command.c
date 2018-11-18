@@ -143,20 +143,36 @@ int cmd_usage(const cmd_tbl_t *cmdtp)
 
 #ifdef CONFIG_AUTO_COMPLETE
 
+static char env_complete_buf[512];
+
 int var_complete(int argc, char * const argv[], char last_char, int maxv, char *cmdv[])
 {
-	static char tmp_buf[512];
 	int space;
 
 	space = last_char == '\0' || isblank(last_char);
 
 	if (space && argc == 1)
-		return env_complete("", maxv, cmdv, sizeof(tmp_buf), tmp_buf);
+		return env_complete("", maxv, cmdv, sizeof(env_complete_buf),
+				    env_complete_buf, false);
 
 	if (!space && argc == 2)
-		return env_complete(argv[1], maxv, cmdv, sizeof(tmp_buf), tmp_buf);
+		return env_complete(argv[1], maxv, cmdv,
+				    sizeof(env_complete_buf),
+				    env_complete_buf, false);
 
 	return 0;
+}
+
+int dollar_complete(int argc, char * const argv[], char last_char, int maxv,
+		    char *cmdv[])
+{
+	/* Make sure the last argument starts with a $. */
+	if (argc < 1 || argv[argc - 1][0] != '$' ||
+	    last_char == '\0' || isblank(last_char))
+		return 0;
+
+	return env_complete(argv[argc - 1], maxv, cmdv, sizeof(env_complete_buf),
+			    env_complete_buf, true);
 }
 
 /*************************************************************************************/
