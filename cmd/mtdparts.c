@@ -122,9 +122,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MTDPARTS_DEFAULT NULL
 #endif
 #endif
-#if defined(CONFIG_SYS_MTDPARTS_RUNTIME)
-extern void board_mtdparts_default(const char **mtdids, const char **mtdparts);
-#endif
 static const char *mtdids_default = MTDIDS_DEFAULT;
 static const char *mtdparts_default = MTDPARTS_DEFAULT;
 
@@ -1733,9 +1730,6 @@ int mtdparts_init(void)
 		memset(last_ids, 0, sizeof(last_ids));
 		memset(last_parts, 0, sizeof(last_parts));
 		memset(last_partition, 0, sizeof(last_partition));
-#if defined(CONFIG_SYS_MTDPARTS_RUNTIME)
-		board_mtdparts_default(&mtdids_default, &mtdparts_default);
-#endif
 		use_defaults = 1;
 		initialized = 1;
 	}

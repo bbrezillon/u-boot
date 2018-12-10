@@ -13,8 +13,6 @@
 
 #define MTD_NAME_MAX_LEN 20
 
-void board_mtdparts_default(const char **mtdids, const char **mtdparts);
-
 static const char *get_mtdids(void)
 {
 	__maybe_unused const char *mtdparts = NULL;
@@ -23,9 +21,7 @@ static const char *get_mtdids(void)
 	if (mtdids)
 		return mtdids;
 
-#if defined(CONFIG_SYS_MTDPARTS_RUNTIME)
-	board_mtdparts_default(&mtdids, &mtdparts);
-#elif defined(MTDIDS_DEFAULT)
+#if defined(MTDIDS_DEFAULT)
 	mtdids = MTDIDS_DEFAULT;
 #elif defined(CONFIG_MTDIDS_DEFAULT)
 	mtdids = CONFIG_MTDIDS_DEFAULT;
@@ -133,9 +129,7 @@ static const char *get_mtdparts(void)
 	if (mtdparts || !use_defaults)
 		return mtdparts;
 
-#if defined(CONFIG_SYS_MTDPARTS_RUNTIME)
-	board_mtdparts_default(&mtdids, &mtdparts);
-#elif defined(MTDPARTS_DEFAULT)
+#if defined(MTDPARTS_DEFAULT)
 	mtdparts = MTDPARTS_DEFAULT;
 #elif defined(CONFIG_MTDPARTS_DEFAULT)
 	mtdparts = CONFIG_MTDPARTS_DEFAULT;
